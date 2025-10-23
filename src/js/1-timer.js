@@ -1,5 +1,18 @@
 import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.min.css'; //стилі обов'язково!
+import 'flatpickr/dist/flatpickr.min.css';
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
+
+const startBtn = document.querySelector('[data-start]');
+const input = document.querySelector('#datetime-picker');
+const daysSpan = document.querySelector('[data-days]');
+const hoursSpan = document.querySelector('[data-hours]');
+const minutesSpan = document.querySelector('[data-minutes]');
+const secondsSpan = document.querySelector('[data-seconds]');
+
+let selectedDate = null;
+startBtn.disabled = true;
+
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -16,32 +29,21 @@ const options = {
         startBtn.disabled = true;
     } else {
         startBtn.disabled = false;
-    }
-    console.log(selectedDates[0]);
+    }   
   },
 };
 
-flatpickr('#datetime-picker', {
+const calendar = flatpickr('#datetime-picker', {
   dateFormat: 'Y-m-d',
     // minDate: 'today',
     ...options,
 });
-// Описаний у документації
-import iziToast from "izitoast";
-// Додатковий імпорт стилів
-import "izitoast/dist/css/iziToast.min.css";
-const startBtn = document.querySelector('[data-start]');
-const input = document.querySelector('#datetime-picker');
-let selectedDate = null;
-startBtn.disabled = true;
-const daysSpan = document.querySelector('[data-days]');
-const hoursSpan = document.querySelector('[data-hours]');
-const minutesSpan = document.querySelector('[data-minutes]');
-const secondsSpan = document.querySelector('[data-seconds]');
+
 input.addEventListener('change', (event) => {
     selectedDate = new Date(event.target.value);
     console.log('selectedDate', selectedDate);
 });
+
 function convertMs(ms) {
   // Number of milliseconds per unit of time
   const second = 1000;
@@ -60,19 +62,28 @@ function convertMs(ms) {
 
   return { days, hours, minutes, seconds };
 }
-startBtn.addEventListener('click', () => {
+
+startBtn.addEventListener('click', () => { 
+  startBtn.disabled = true;
+  input.disabled = true;
+  calendar.set("clickOpens", false);
+
+  const intervalId = setInterval(() => {
+    const now = new Date();
+    const delta = selectedDate - now;
     
-    const intervalId = setInterval(() => {
-        const now = new Date();
-        const delta = selectedDate - now;
-        if (delta <= 0) {
-            clearInterval(intervalId);
-            return;
+      if (delta <= 0) {
+          clearInterval(intervalId);
+          input.disabled = false;
+          calendar.set("clickOpens", true);
+          startBtn.disabled = true;
+        return;
         }
         const time = convertMs(delta);
         daysSpan.textContent = String(time.days).padStart(2, '0');
         hoursSpan.textContent = String(time.hours).padStart(2, '0');
         minutesSpan.textContent = String(time.minutes).padStart(2, '0');
         secondsSpan.textContent = String(time.seconds).padStart(2, '0');
-        startBtn.disabled = true;
-}, 1000)}, )
+        startBtn.disabled = true;  
+    }, 1000)
+},)
