@@ -66,16 +66,13 @@ function convertMs(ms) {
 startBtn.addEventListener('click', () => { 
   startBtn.disabled = true;
   input.disabled = true;
-  calendar.set("clickOpens", false);
-
   const intervalId = setInterval(() => {
     const now = new Date();
     const delta = selectedDate - now;
     
       if (delta <= 0) {
           clearInterval(intervalId);
-          input.disabled = false;
-          calendar.set("clickOpens", true);
+          input.disabled = false;       
           startBtn.disabled = true;
         return;
         }
